@@ -109,7 +109,7 @@ jobs:
               vcpkg-triplet: arm64-osx,
             }
     env:
-      STATUS_URL: ${{ fromJson(inputs.extras).rdgen == 'true' && format('{0}/updategh', secrets.GENURL) || format('{0}/api/updategh', inputs.apiServer) }}
+      STATUS_URL: ${{ fromJson(inputs.extras).rdgen == 'true' && format('{0}/updategh', secrets.GENURL) || format('{0}/api/updategh', secrets.SERVER_API) }}
 
     steps:
       - name: Export GitHub Actions cache environment variables
@@ -222,9 +222,9 @@ jobs:
           sed -i '' -e 's/("About RustDesk", "Over RustDesk")/("About RustDesk", "Over ${{ inputs.appname }}")/' ./src/lang/nl.rs
           sed -i '' -e 's/("About", "Over")/("About", "Over ${{ inputs.appname }}")/' ./src/lang/nl.rs
 
-          sed -i -e 's|rs-ny.rustdesk.com|${{ inputs.server }}|' ./libs/hbb_common/src/config.rs
-          sed -i -e 's|OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=|${{ inputs.key }}|' ./libs/hbb_common/src/config.rs
-          sed -i -e 's|https://admin.rustdesk.com|${{ inputs.apiServer }}|' ./src/common.rs
+          sed -i -e 's|rs-ny.rustdesk.com|${{ secrets.SERVER }}|' ./libs/hbb_common/src/config.rs
+          sed -i -e 's|OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=|${{ secrets.SERVER_KEY }}|' ./libs/hbb_common/src/config.rs
+          sed -i -e 's|https://admin.rustdesk.com|${{ secrets.SERVER_API }}|' ./src/common.rs
           
           wget https://raw.githubusercontent.com/Darkbotic/rdgen/refs/heads/master/.github/patches/allowCustom.diff
           git apply allowCustom.diff
@@ -742,7 +742,7 @@ jobs:
             -H "Content-Type: multipart/form-data" \
             -H "Authorization: Bearer ${{ fromJson(inputs.extras).token }}" \
             -F "file=@$GITHUB_WORKSPACE/${{ inputs.filename }}-${{ matrix.job.arch }}.dmg" \
-            "${{ inputs.apiServer }}/api/save_custom_client"
+            "${{ secrets.SERVER_API }}/api/save_custom_client"
 
       - name: Report Status
         uses: fjogeleit/http-request-action@v1
